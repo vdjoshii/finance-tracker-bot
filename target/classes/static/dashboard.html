@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Khaata</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --red: #B5202C;
+          --gold: #C9942A;
+          --cream: #F6EFE2;
+          --indigo: #2B2A6E;
+          --ink: #17140F;
+          --green: #2F7A45;
+          --line: #DAD0BA;
+          --panel: #FFFFFF;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+          margin: 0;
+          background: var(--cream);
+          color: var(--ink);
+          font-family: 'Inter', sans-serif;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        .wrap { max-width: 1040px; margin: 0 auto; padding: 32px 20px 100px; }
+
+        header {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          border-bottom: 2px solid var(--ink);
+          padding-bottom: 14px;
+          margin-bottom: 28px;
+        }
+
+        h1 {
+          font-family: 'Fraunces', serif;
+          font-weight: 700;
+          font-size: 26px;
+          margin: 0;
+          color: var(--ink);
+        }
+
+        .brand-sub {
+          font-family: 'Space Mono', monospace;
+          font-size: 11px;
+          color: var(--ink);
+          opacity: 0.5;
+          margin-left: 8px;
+        }
+
+        .month-label {
+          font-family: 'Space Mono', monospace;
+          font-size: 12px;
+          color: var(--indigo);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          font-weight: 700;
+        }
+
+        /* ---- Stat strip ---- */
+        .stat-strip {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1px;
+          background: var(--line);
+          border: 1px solid var(--line);
+          border-radius: 10px;
+          overflow: hidden;
+          margin-bottom: 32px;
+        }
+
+        @media (max-width: 700px) {
+          .stat-strip { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .stat-cell {
+          background: var(--panel);
+          padding: 16px 18px;
+        }
+
+        .stat-label {
+          font-family: 'Space Mono', monospace;
+          font-size: 10.5px;
+          text-transform: uppercase;
+          letter-spacing: 0.07em;
+          color: var(--ink);
+          opacity: 0.5;
+          margin-bottom: 7px;
+        }
+
+        .stat-value {
+          font-family: 'Space Mono', monospace;
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--ink);
+          line-height: 1.1;
+        }
+
+        .stat-delta {
+          font-family: 'Space Mono', monospace;
+          font-size: 11px;
+          font-weight: 700;
+          margin-top: 5px;
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+        }
+
+        .delta-up { color: var(--red); }
+        .delta-down { color: var(--green); }
+        .delta-flat { color: var(--ink); opacity: 0.45; }
+
+        section { margin-bottom: 36px; }
+
+        .section-head {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          margin-bottom: 14px;
+        }
+
+        h2 {
+          font-family: 'Fraunces', serif;
+          font-weight: 700;
+          font-size: 16px;
+          margin: 0;
+          color: var(--ink);
+        }
+
+        .section-note {
+          font-family: 'Space Mono', monospace;
+          font-size: 11px;
+          opacity: 0.45;
+        }
+
+        /* ---- Category + donut combined panel ---- */
+        .analysis-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0;
+          border: 1px solid var(--line);
+          border-radius: 10px;
+          overflow: hidden;
+          background: var(--panel);
+        }
+
+        @media (max-width: 700px) {
+          .analysis-grid { grid-template-columns: 1fr; }
+        }
+
+        .analysis-col { padding: 20px 22px; }
+        .analysis-col + .analysis-col { border-left: 1px solid var(--line); }
+        @media (max-width: 700px) {
+          .analysis-col + .analysis-col { border-left: none; border-top: 1px solid var(--line); }
+        }
+
+        .category-row {
+          display: grid;
+          grid-template-columns: 110px 1fr 90px;
+          align-items: center;
+          gap: 12px;
+          padding: 8px 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .category-row:last-child { border-bottom: none; }
+        .category-name { font-size: 13px; font-weight: 600; }
+        .category-pct { font-family: 'Space Mono', monospace; font-size: 10.5px; opacity: 0.45; }
+        .bar-track { height: 7px; background: rgba(43,42,110,0.08); border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--indigo); }
+        .category-amount { font-family: 'Space Mono', monospace; font-size: 12.5px; font-weight: 700; text-align: right; }
+
+        .donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+        .donut-svg-box { position: relative; width: 150px; height: 150px; }
+        .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+        .donut-center-val { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; }
+        .donut-center-label { font-family: 'Space Mono', monospace; font-size: 9px; opacity: 0.5; text-transform: uppercase; }
+        .donut-legend { width: 100%; display: flex; flex-direction: column; gap: 5px; }
+        .legend-row { display: flex; align-items: center; gap: 7px; font-size: 11.5px; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+        .legend-name { font-weight: 600; flex: 1; }
+        .legend-pct { font-family: 'Space Mono', monospace; opacity: 0.55; }
+
+        /* ---- Friends table ---- */
+        .friends-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .friends-table th {
+          text-align: left;
+          font-family: 'Space Mono', monospace;
+          font-size: 10.5px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          opacity: 0.5;
+          font-weight: 700;
+          padding: 0 10px 8px 0;
+          border-bottom: 1px solid var(--ink);
+        }
+        .friends-table th.num, .friends-table td.num { text-align: right; }
+        .friends-table td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line); }
+        .friends-table td.name { font-weight: 700; }
+        .status-pill {
+          font-family: 'Space Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          padding: 2px 8px;
+          border-radius: 999px;
+          display: inline-block;
+        }
+        .status-lena { background: rgba(47,122,69,0.12); color: var(--green); }
+        .status-dena { background: rgba(181,32,44,0.1); color: var(--red); }
+        .status-settled { background: rgba(23,20,15,0.06); color: var(--ink); opacity: 0.5; }
+        .amount-lena { color: var(--green); font-family: 'Space Mono', monospace; font-weight: 700; }
+        .amount-dena { color: var(--red); font-family: 'Space Mono', monospace; font-weight: 700; }
+        .amount-settled { font-family: 'Space Mono', monospace; opacity: 0.4; }
+
+        /* ---- Expense table ---- */
+        table.expense-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .expense-table thead th {
+          text-align: left;
+          font-family: 'Space Mono', monospace;
+          font-size: 10.5px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          opacity: 0.5;
+          font-weight: 700;
+          padding: 0 0 9px 0;
+          border-bottom: 1px solid var(--ink);
+        }
+        .expense-table thead th.num { text-align: right; }
+        .expense-table tbody td { padding: 9px 0; border-bottom: 1px solid var(--line); }
+        .expense-table tbody tr:hover { background: rgba(201,148,42,0.06); }
+        .cell-date { font-family: 'Space Mono', monospace; font-size: 11.5px; opacity: 0.5; white-space: nowrap; }
+        .cell-category { font-weight: 600; color: var(--indigo); font-size: 12.5px; }
+        .cell-desc { opacity: 0.6; font-size: 12.5px; }
+        .cell-amount { font-family: 'Space Mono', monospace; font-size: 12.5px; font-weight: 700; text-align: right; white-space: nowrap; }
+
+        .empty {
+          font-size: 13px; padding: 22px; text-align: center;
+          border: 1px dashed var(--line); border-radius: 8px; opacity: 0.55;
+        }
+
+        .search-input {
+          width: 100%; padding: 9px 13px; margin-bottom: 14px;
+          border: 1px solid var(--line); border-radius: 6px; background: var(--panel);
+          font-family: 'Inter', sans-serif; font-size: 12.5px;
+        }
+        .search-input:focus { outline: none; border-color: var(--indigo); }
+
+        .skeleton { font-size: 12px; font-family: 'Space Mono', monospace; opacity: 0.4; padding: 14px 0; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <div><h1>Khaata<span class="brand-sub">hisaab-kitab</span></h1></div>
+        <div class="month-label" id="monthLabel"></div>
+    </header>
+
+    <div class="stat-strip" id="statStrip">
+        <div class="stat-cell">
+            <div class="stat-label">Spent this month</div>
+            <div class="stat-value" id="statTotal">&mdash;</div>
+            <div class="stat-delta" id="statDelta"></div>
+        </div>
+        <div class="stat-cell">
+            <div class="stat-label">Avg / day</div>
+            <div class="stat-value" id="statAvg">&mdash;</div>
+        </div>
+        <div class="stat-cell">
+            <div class="stat-label">Transactions</div>
+            <div class="stat-value" id="statCount">&mdash;</div>
+        </div>
+        <div class="stat-cell">
+            <div class="stat-label">Last month</div>
+            <div class="stat-value" id="statPrev">&mdash;</div>
+        </div>
+    </div>
+
+    <section>
+        <div class="section-head"><h2>Category breakdown</h2><span class="section-note">% of monthly total</span></div>
+        <div class="analysis-grid">
+            <div class="analysis-col">
+                <div id="categoryList" class="skeleton">loading...</div>
+            </div>
+            <div class="analysis-col">
+                <div class="donut-wrap">
+                    <div class="donut-svg-box">
+                        <svg id="donutSvg" viewBox="0 0 100 100" width="150" height="150"></svg>
+                        <div class="donut-center">
+                            <div class="donut-center-val" id="donutCenterVal">&mdash;</div>
+                            <div class="donut-center-label">total</div>
+                        </div>
+                    </div>
+                    <div class="donut-legend" id="donutLegend"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-head"><h2>Friend balances</h2><span class="section-note">lena baki / dena baki</span></div>
+        <div id="friendsTableWrap" class="skeleton">loading...</div>
+    </section>
+
+    <section>
+        <div class="section-head"><h2>All expenses</h2></div>
+        <input type="text" class="search-input" id="searchInput" placeholder="filter by category or description..." />
+        <div id="tableWrap" class="skeleton">loading...</div>
+    </section>
+</div>
+
+<script>
+    const PALETTE = ['#2B2A6E', '#B5202C', '#C9942A', '#2F7A45', '#7A4A2D', '#1C7A7A', '#8A2D8A', '#4A5A8A'];
+    const currencySymbols = { INR: '\u20B9' };
+    function symbolFor(code) { return currencySymbols[code] || (code + ' '); }
+    function fmt(amount) { return Number(amount).toFixed(2); }
+    function fmtCompact(amount) {
+      const n = Number(amount);
+      if (Math.abs(n) >= 1000) return (n / 1000).toFixed(1) + 'k';
+      return n.toFixed(0);
+    }
+
+    document.getElementById('monthLabel').textContent =
+      new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    let allExpenses = [];
+    let currency = 'INR';
+
+    async function loadSummary() {
+      const res = await fetch('/api/dashboard/summary');
+      const data = await res.json();
+      const listEl = document.getElementById('categoryList');
+
+      if (data.error === 'no_user') {
+        document.getElementById('statTotal').textContent = symbolFor('INR') + '0';
+        listEl.innerHTML = '<div class="empty">' + data.message + '</div>';
+        drawDonut([], 'INR');
+        return;
+      }
+
+      currency = data.currency;
+      const sym = symbolFor(currency);
+
+      document.getElementById('statTotal').textContent = sym + fmtCompact(data.total);
+      document.getElementById('statAvg').textContent = sym + fmt(data.avgPerDay);
+      document.getElementById('statCount').textContent = data.transactionCount;
+      document.getElementById('statPrev').textContent = sym + fmtCompact(data.previousTotal);
+
+      const deltaEl = document.getElementById('statDelta');
+      const pct = Number(data.percentChange);
+      if (Number(data.previousTotal) === 0) {
+        deltaEl.innerHTML = '';
+      } else if (pct > 0.5) {
+        deltaEl.innerHTML = '\u2191 ' + pct.toFixed(1) + '% vs last month';
+        deltaEl.className = 'stat-delta delta-up';
+      } else if (pct < -0.5) {
+        deltaEl.innerHTML = '\u2193 ' + Math.abs(pct).toFixed(1) + '% vs last month';
+        deltaEl.className = 'stat-delta delta-down';
+      } else {
+        deltaEl.innerHTML = '\u2192 flat vs last month';
+        deltaEl.className = 'stat-delta delta-flat';
+      }
+
+      if (!data.byCategory || data.byCategory.length === 0) {
+        listEl.innerHTML = '<div class="empty">No expenses logged yet this month.</div>';
+        drawDonut([], currency);
+        return;
+      }
+
+      const total = data.byCategory.reduce((s, c) => s + Number(c.total), 0);
+      const max = Math.max(...data.byCategory.map(c => Number(c.total)));
+      listEl.innerHTML = data.byCategory.map((c, i) => {
+        const barPct = max > 0 ? (Number(c.total) / max * 100) : 0;
+        const ofTotal = total > 0 ? (Number(c.total) / total * 100) : 0;
+        const color = PALETTE[i % PALETTE.length];
+        return `
+          <div class="category-row">
+            <div class="category-name">${escapeHtml(c.categoryName)}<div class="category-pct">${ofTotal.toFixed(1)}%</div></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${barPct}%;background:${color}"></div></div>
+            <div class="category-amount">${sym}${fmt(c.total)}</div>
+          </div>`;
+      }).join('');
+
+      drawDonut(data.byCategory, currency);
+    }
+
+    function drawDonut(byCategory, currencyCode) {
+      const svg = document.getElementById('donutSvg');
+      const legend = document.getElementById('donutLegend');
+      const centerVal = document.getElementById('donutCenterVal');
+      const sym = symbolFor(currencyCode);
+
+      if (!byCategory || byCategory.length === 0) {
+        svg.innerHTML = '<circle cx="50" cy="50" r="38" fill="none" stroke="#17140F" stroke-opacity="0.08" stroke-width="13"/>';
+        legend.innerHTML = '<div style="opacity:0.45;font-size:11.5px;">no data</div>';
+        centerVal.textContent = sym + '0';
+        return;
+      }
+      const total = byCategory.reduce((s, c) => s + Number(c.total), 0);
+      centerVal.textContent = sym + fmtCompact(total);
+
+      let cumulative = 0;
+      const r = 38, cx = 50, cy = 50;
+      const circumference = 2 * Math.PI * r;
+      let paths = '';
+      let legendHtml = '';
+      byCategory.forEach((c, i) => {
+        const value = Number(c.total);
+        const pct = total > 0 ? value / total : 0;
+        const color = PALETTE[i % PALETTE.length];
+        const dash = pct * circumference;
+        const gap = circumference - dash;
+        const offset = circumference - (cumulative * circumference);
+        paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="13"
+          stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${offset}"/>`;
+        cumulative += pct;
+        legendHtml += `<div class="legend-row">
+            <span class="legend-dot" style="background:${color}"></span>
+            <span class="legend-name">${escapeHtml(c.categoryName)}</span>
+            <span class="legend-pct">${Math.round(pct * 100)}%</span>
+          </div>`;
+      });
+      svg.innerHTML = `<g transform="rotate(-90 50 50)">${paths}</g>`;
+      legend.innerHTML = legendHtml;
+    }
+
+    async function loadFriends() {
+      const res = await fetch('/api/dashboard/friends');
+      const data = await res.json();
+      const wrap = document.getElementById('friendsTableWrap');
+
+      if (data.error === 'no_user') {
+        wrap.innerHTML = '<div class="empty">' + data.message + '</div>';
+        return;
+      }
+
+      const friends = data.friends || [];
+      const sym = symbolFor(data.currency);
+      if (friends.length === 0) {
+        wrap.innerHTML = '<div class="empty">No friends saved yet. Add one in Telegram with /addfriend.</div>';
+        return;
+      }
+
+      const sorted = [...friends].sort((a, b) => Math.abs(Number(b.balance)) - Math.abs(Number(a.balance)));
+
+      wrap.innerHTML = `
+        <table class="friends-table">
+          <thead>
+            <tr><th>Name</th><th>Status</th><th class="num">Balance</th></tr>
+          </thead>
+          <tbody>
+            ${sorted.map(f => {
+              const bal = Number(f.balance);
+              if (bal === 0) {
+                return `<tr><td class="name">${escapeHtml(f.name)}</td>
+                  <td><span class="status-pill status-settled">settled</span></td>
+                  <td class="num amount-settled">${sym}0</td></tr>`;
+              } else if (bal > 0) {
+                return `<tr><td class="name">${escapeHtml(f.name)}</td>
+                  <td><span class="status-pill status-lena">lena baki</span></td>
+                  <td class="num amount-lena">${sym}${fmt(bal)}</td></tr>`;
+              } else {
+                return `<tr><td class="name">${escapeHtml(f.name)}</td>
+                  <td><span class="status-pill status-dena">dena baki</span></td>
+                  <td class="num amount-dena">${sym}${fmt(Math.abs(bal))}</td></tr>`;
+              }
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    async function loadExpenses() {
+      const res = await fetch('/api/dashboard/expenses');
+      const data = await res.json();
+      const wrap = document.getElementById('tableWrap');
+
+      if (data.error === 'no_user') {
+        wrap.innerHTML = '<div class="empty">' + data.message + '</div>';
+        return;
+      }
+
+      allExpenses = data.expenses || [];
+      currency = data.currency;
+      renderTable(allExpenses);
+    }
+
+    function renderTable(rows) {
+      const wrap = document.getElementById('tableWrap');
+      if (rows.length === 0) {
+        wrap.innerHTML = '<div class="empty">No expenses match.</div>';
+        return;
+      }
+      const sym = symbolFor(currency);
+      wrap.innerHTML = `
+        <table class="expense-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th class="num">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td class="cell-date">${r.dateIncurred}</td>
+                <td class="cell-category">${escapeHtml(r.category)}</td>
+                <td class="cell-desc">${escapeHtml(r.description || '\u2014')}</td>
+                <td class="cell-amount">${sym}${fmt(r.amount)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str == null ? '' : str;
+      return div.innerHTML;
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) { renderTable(allExpenses); return; }
+      const filtered = allExpenses.filter(r =>
+        (r.category && r.category.toLowerCase().includes(q)) ||
+        (r.description && r.description.toLowerCase().includes(q))
+      );
+      renderTable(filtered);
+    });
+
+    loadSummary();
+    loadFriends();
+    loadExpenses();
+</script>
+</body>
+</html>
