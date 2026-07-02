@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/finance_tracker?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/finance_tracker?creatIfNotExist=tSSL=false&allowPubKeyRetrieval=true&serverTimezone=UTC
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PASSWORD:root123}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -19,8 +19,8 @@ spring:
 
 telegram:
   bot:
-    token: ${TELEGRAM_BOT_TOKEN:8846285563:AAEyyjskrglwxtqXX4Q2dsr20sb27ACzQrE}
-    username: ${TELEGRAM_BOT_USERNAME:Viraj_Kharcha_Khata_bot}
+    token: ${TELEGRAM_BOT_TOKEN:8846285563:AAEy dsr20sb27ACzQrE}//Dummy token  insert your token here 
+    username: ${TELEGRAM_BOT_USERNAME:_bot name }
 
 logging:
   level:
